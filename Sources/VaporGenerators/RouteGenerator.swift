@@ -60,18 +60,16 @@ internal final class RouteGenerator: AbstractGenerator {
     }
     
     override func performGeneration(arguments: [String]) throws {
-        let forResource = arguments.flag(Arguments.resource.rawValue)
-        let requiredArgumentsCount = forResource ? 1 : 2
-        guard arguments.count >= requiredArgumentsCount else {
+        guard arguments.count >= 1 else {
             throw ConsoleError.insufficientArguments
         }
         
         let path = arguments[0]
-        if forResource {
+        if arguments.flag(Arguments.resource.rawValue) {
             try generateRoutes(forResource: path)
         }
         else {
-            let method = arguments[1]
+            let method =  arguments.count > 1 ? arguments[1] : "get"
             let handler = arguments.count > 2 ? arguments[2] : "return JSON([:])"
             try generateRoute(forPath: path, method: method, handler: handler)
         }

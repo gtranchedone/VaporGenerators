@@ -1,0 +1,3 @@
+    func _ACTION_(request: request) throws -> ResourceRepresentable {
+        return try droplet.view.make("_RESOURCE_NAME_/_ACTION_")
+    }

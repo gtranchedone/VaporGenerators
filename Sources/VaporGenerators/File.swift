@@ -45,6 +45,12 @@ extension File {
     public static func exists(atPath path: String) -> Bool {
         return FileManager.default.fileExists(atPath: path)
     }
+    
+    public static func open(atPath path: String, _ editClosure: ((inout File) -> Void)) throws {
+        var file = try File(path: path)
+        editClosure(&file)
+        try file.save()
+    }
 }
 
 extension String {

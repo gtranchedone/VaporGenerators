@@ -1,6 +1,8 @@
 import Foundation
 import Console
 
+// TODO: make sure ivars are normalized when used as keys. .g. firstName => "first_name"
+
 internal final class ModelGenerator: AbstractGenerator {
     
     private enum ReplacementKeys: String {

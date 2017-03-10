@@ -2,4 +2,9 @@ import Vapor
 import HTTP
 
 final class _CLASS_NAME_ {
+    let droplet: Droplet
+
+    init(droplet: Droplet) {
+      self.droplet = droplet
+    }
 }

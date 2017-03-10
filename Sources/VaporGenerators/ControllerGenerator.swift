@@ -6,16 +6,16 @@ internal final class ControllerGenerator: AbstractGenerator {
         case tests = "Controller_Tests"
         case basic = "Controller_Simple"
         case resource = "Controller_Resource"
+        case action = "Controller_Action"
     }
     
     private enum Directories: String {
-        case styles = "Public/styles/"
-        case scripts = "Public/scripts/"
         case controllers = "Sources/App/Controllers/"
         case controllersTests = "Tests/AppTests/Controllers/"
     }
     
     private enum ReplacementKeys: String {
+        case action = "_ACTION_"
         case className = "_CLASS_NAME_"
         case resourceName = "_RESOURCE_NAME_"
         case variableName = "_VAR_NAME_"
@@ -25,8 +25,6 @@ internal final class ControllerGenerator: AbstractGenerator {
     private enum Arguments: String {
         case actions
         case resource
-        case noCSS = "no-css"
-        case noJS = "no-js"
     }
     
     override internal var signature: [Argument] {
@@ -34,11 +32,7 @@ internal final class ControllerGenerator: AbstractGenerator {
             Value(name: Arguments.actions.rawValue,
                   help: ["An optional list of actions. Routes and Views will be created for each action."]),
             Option(name: Arguments.resource.rawValue,
-                   help: ["Builds controller for a resource"]),
-            Option(name: Arguments.noCSS.rawValue,
-                   help: ["If true it doen't create a CSS file for the controller, defaults to true if 'actions' is empty."]),
-            Option(name: Arguments.noJS.rawValue,
-                   help: ["If true it doen't create a JavsScript file for the controller, defaults to true if 'actions' is empty."]),
+                   help: ["Builds controller for a resource"])
         ]
     }
     
@@ -53,40 +47,19 @@ internal final class ControllerGenerator: AbstractGenerator {
         console.print("Controller '\(controllerName)' actions => \(actions)")
         
         if arguments.flag(Arguments.resource.rawValue) {
-            try generateResourcesController(forResourceNamed: name, actions: actions)
-            try generateModel(arguments: arguments)
+            let file = try generateController(named: name, templateName: Templates.resource.rawValue)
+            try uncommentMethods(forActions: actions, inFile: file)
         }
         else {
-            try generateSimpleController(named: name, actions: actions)
+            try generateController(named: name, templateName: Templates.basic.rawValue)
+            try generateMethods(for: actions, controllerName: controllerName, resourceName: name)
         }
-        
-        try generateViews(forActions: actions, resourceName: name)
-        if actions.count > 0 {
-            try generateResources(arguments: arguments, resourceName: name)
-        }
-    }
-    
-    private func generateModel(arguments: [String]) throws {
-        let modelGenerator = ModelGenerator(console: console)
-        try modelGenerator.generate(arguments: arguments)
-    }
-    
-    private func generateResourcesController(forResourceNamed resourceName: String, actions: [String]) throws {
-        var file = try generateController(named: resourceName, templateName: Templates.resource.rawValue)
-        file = try uncommentMethods(forActions: actions, inFile: file)
-        try file.save()
-        try generateRoutes(forResource: resourceName)
-    }
-    
-    private func generateSimpleController(named name: String, actions: [String]) throws {
-        try generateController(named: name, templateName: Templates.basic.rawValue)
-        try generateRoutes(forActions: actions, resourceName: name)
     }
     
     @discardableResult
     private func generateController(named resourceName: String, templateName: String) throws -> File {
         let className = ControllerGenerator.controllerNameFromCommandInput(resourceName)
-        let filePath = "\(Directories.controllers.rawValue)\(className).swift"
+        let filePath = pathForController(named: className)
         let templatePath = pathForTemplate(named: templateName)
         let testsTemplatePath = pathForTemplate(named: Templates.tests.rawValue)
         let testsFilePath = "\(Directories.controllersTests.rawValue)\(className)Tests.swift"
@@ -113,25 +86,7 @@ internal final class ControllerGenerator: AbstractGenerator {
         return file
     }
     
-    private func generateViews(forActions actions: [String], resourceName: String) throws {
-        let viewGenerator = ViewGenerator(console: console)
-        try viewGenerator.generate(arguments: [resourceName] + actions + ["--resource"])
-    }
-    
-    private func generateResources(arguments: [String], resourceName: String) throws {
-        var resourcesToGenerate: [String] = []
-        if !arguments.flag(Arguments.noCSS.rawValue) {
-            resourcesToGenerate.append("\(Directories.styles.rawValue)\(resourceName.pluralized).css")
-        }
-        if !arguments.flag(Arguments.noJS.rawValue) {
-            resourcesToGenerate.append("\(Directories.scripts.rawValue)\(resourceName.pluralized).js")
-        }
-        for path in resourcesToGenerate {
-            console.info("Generating \(path)")
-            try File(path: path, contents: "").save()
-        }
-    }
-    
+    @discardableResult
     private func uncommentMethods(forActions actions: [String], inFile file: File) throws -> File {
         var string = file.contents
         var rangesToRemove: [Range<String.CharacterView.Index>] = []
@@ -210,21 +165,31 @@ internal final class ControllerGenerator: AbstractGenerator {
             string.removeSubrange(range)
         }
         
-        return File(path: file.path, contents: string)
+        let file = File(path: file.path, contents: string)
+        try file.save()
+        return file
     }
     
-    private func generateRoutes(forActions actions: [String], resourceName: String) throws {
-        let routeGenerator = RouteGenerator(console: console)
-        let controllerName = ControllerGenerator.controllerNameFromCommandInput(resourceName)
-        for action in actions {
-            let path = "\(resourceName.pluralized.lowercased())/\(action)"
-            let handler = "\"try \(controllerName)().render(\"\(action)\")\""
-            try routeGenerator.generate(arguments: [path, "get", handler])
+    private func generateMethods(for actions: [String], controllerName: String, resourceName: String) throws {
+        let actionTemplate = try File(path: pathForTemplate(named: Templates.action.rawValue))
+        let actionOriginal = "\(controllerName) {"
+        let actionReplacement = "\(actionOriginal)\n\(actionTemplate.contents)"
+        try File.open(atPath: pathForController(named: controllerName)) { file in
+            var finalContents = file.contents
+            for action in actions {
+                finalContents = finalContents.replacingOccurrences(of: actionOriginal,
+                                                                   with: actionReplacement)
+                finalContents = finalContents.replacingOccurrences(of: ReplacementKeys.action.rawValue,
+                                                                   with: action)
+                finalContents = finalContents.replacingOccurrences(of: ReplacementKeys.resourceName.rawValue,
+                                                                   with: resourceName)
+            }
+            file.contents = finalContents
         }
     }
     
-    private func generateRoutes(forResource resourceName: String) throws {
-        try RouteGenerator(console: console).generate(arguments: [resourceName, "--resource"])
+    private func pathForController(named name: String) -> String {
+        return "\(Directories.controllers.rawValue)\(name).swift"
     }
     
     private class func controllerNameFromCommandInput(_ name: String) -> String {

@@ -18,7 +18,6 @@ public extension Generator {
     private var packageDirectory: String {
         let packageName = String(describing: self).components(separatedBy: ".").first!
         if let packagePath =  pathOfDirectory(matchingName: packageName, inPath: "Packages") {
-            console.print("Packages/\(packagePath)/Sources/")
             return "Packages/\(packagePath)/Sources/\(packageName)/"
         }
         return "Sources/\(packageName)/"
@@ -38,12 +37,6 @@ public extension Generator {
         guard !File.exists(atPath: path) else {
             throw GeneratorError.general("\(path) already exists")
         }
-    }
-    
-    public func openFile(atPath path: String, _ editClosure: ((inout File) -> Void)) throws {
-        var file = try File(path: path)
-        editClosure(&file)
-        try file.save()
     }
     
     public func loadTemplate(atPath: String, fallbackURL: URL) throws -> File {

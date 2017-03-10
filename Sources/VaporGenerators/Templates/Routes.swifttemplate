@@ -1,0 +1,21 @@
+import Vapor
+import HTTP
+
+public func configure(droplet: Droplet) throws {
+    try configureMiddlewares(with: droplet)
+    try configureDatabase(with: droplet)
+    try configureRoutes(with : droplet)
+}
+
+private func configureDatabase(with droplet: Droplet) throws {
+    // e.g.
+    // try droplet.addProvider(VaporPostgreSQL.Provider.self)
+    // droplet.preparations.append(Post.self)
+}
+
+private func configureMiddlewares(with droplet: Droplet) throws {
+    // e.g. droplet.middleware.append(AuthMiddleware<User>())
+}
+
+private func configureRoutes(with droplet: Droplet) throws {
+}

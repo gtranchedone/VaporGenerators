@@ -1,0 +1,37 @@
+import Vapor
+import Fluent
+import Foundation
+
+final class _CLASS_NAME_: Model {
+    
+    fileprivate static let tableName = "_DB_TABLE_NAME_"
+    
+    var id: Node?
+    _IVARS_DEFINITION_
+    
+    init(node: Node, in context: Context) throws {
+        id = try node.extract("id")
+        _IVARS_INITIALIZER_
+    }
+    
+    func makeNode(context: Context) throws -> Node {
+        return try Node(node: [
+            "id": id,
+            _IVARS_DICTIONARY_PAIRS_
+        ])
+    }
+    
+}
+
+extension _CLASS_NAME_: Preparation {
+    static func prepare(_ database: Database) throws {
+        try database.create(_CLASS_NAME_.tableName) {
+            $0.id()
+            _TABLE_ROWS_DEFINITION_
+        }
+    }
+    
+    static func revert(_ database: Database) throws {
+        try database.delete(_CLASS_NAME_.tableName)
+    }
+}

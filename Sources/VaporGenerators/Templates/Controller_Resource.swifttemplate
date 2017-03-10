@@ -1,0 +1,96 @@
+import Vapor
+import HTTP
+
+final class _CLASS_NAME_: ResourceRepresentable {
+    
+    let droplet: Droplet
+    
+    init(droplet: Droplet) {
+        self.droplet = droplet
+    }
+    
+    /*
+    func index(request: Request) throws -> ResponseRepresentable {
+        return try _RESOURCE_NAME_.all().makeNode().converted(to: JSON.self)
+    }
+    */
+
+    /*
+    func new(request: Request) throws -> ResponseRepresentable {
+        return try droplet.view.make("_VAR_NAME_PLURALIZED_/new")
+    }
+    */
+    
+    /*
+    func store(request: Request) throws -> ResponseRepresentable {
+        var _VAR_NAME_ = try request._VAR_NAME_()
+        try _VAR_NAME_.save()
+        return _VAR_NAME_
+    }
+    */
+
+    /*
+    func show(request: Request, _VAR_NAME_: _RESOURCE_NAME_) throws -> ResponseRepresentable {
+        return _VAR_NAME_
+    }
+    */
+    
+    /*
+    func edit(request: Request) throws -> ResponseRepresentable {
+        return try droplet.view.make("_VAR_NAME_PLURALIZED_/edit")
+    }
+    */
+    
+    /*
+    func modify(request: Request, _VAR_NAME_: _RESOURCE_NAME_) throws -> ResponseRepresentable {
+        let new_RESOURCE_NAME_ = try request._VAR_NAME_()
+        var _VAR_NAME_ = _VAR_NAME_
+        // TODO: Update Logic Here
+        try _VAR_NAME_.save()
+        return _VAR_NAME_
+    }
+    */
+    
+    /*
+    func replace(request: Request, _VAR_NAME_: _RESOURCE_NAME_) throws -> ResponseRepresentable {
+        try _VAR_NAME_.delete()
+        return try store(request: request)
+    }
+    */
+    
+    /*
+    func destroy(request: Request, _VAR_NAME_: _RESOURCE_NAME_) throws -> ResponseRepresentable {
+        try _VAR_NAME_.delete()
+        return JSON([:])
+    }
+    */
+    
+    /*
+    func clear(request: Request) throws -> ResponseRepresentable {
+        try _RESOURCE_NAME_.query().delete()
+        return JSON([])
+    }
+    */
+    
+    func makeResource() -> Resource<_RESOURCE_NAME_> {
+        return Resource(
+            index: nil, // index,
+            store: nil, // store,
+            show: nil, // show,
+            replace: nil, // replace,
+            modify: nil, // modify,
+            destroy: nil, // destroy,
+            clear: nil // clear
+        )
+    }
+    
+}
+
+extension Request {
+    
+    func _VAR_NAME_() throws -> _RESOURCE_NAME_ {
+        guard let json = json else { throw Abort.badRequest }
+        return try _RESOURCE_NAME_(node: json)
+    }
+    
+}

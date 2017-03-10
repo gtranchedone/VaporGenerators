@@ -1,0 +1,5 @@
+import Vapor
+import HTTP
+
+final class _CLASS_NAME_ {
+}

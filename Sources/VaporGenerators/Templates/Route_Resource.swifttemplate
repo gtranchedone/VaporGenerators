@@ -1,0 +1,1 @@
+    droplet.resource("_ROUTE_", _HANDLER_)

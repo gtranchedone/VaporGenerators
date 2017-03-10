@@ -1,0 +1,3 @@
+    droplet._METHOD_("_ROUTE_") { request in
+        return _HANDLER_
+    }

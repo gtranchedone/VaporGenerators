@@ -16,7 +16,7 @@ public final class Generate: Command {
     public let console: ConsoleProtocol
     
     public let signature: [Argument] = [
-        Value(name: "type", help: ["model", "view", "controller", "resource", "routes"])
+        Value(name: "type", help: ["model", "view", "controller", "resource", "routes", "test"])
     ]
     
     public let help: [String] = [
@@ -26,7 +26,8 @@ public final class Generate: Command {
                                                        "view": ViewGenerator.self,
                                                        "controller": ControllerGenerator.self,
                                                        "resource": ResourceGenerator.self,
-                                                       "routes": RouteGenerator.self]
+                                                       "routes": RouteGenerator.self,
+                                                       "test": TestsGenerator.self]
     
     public init(console: ConsoleProtocol) {
         self.console = console

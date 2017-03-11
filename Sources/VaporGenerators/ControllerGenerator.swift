@@ -3,7 +3,6 @@ import Console
 internal final class ControllerGenerator: AbstractGenerator {
     
     private enum Templates: String {
-        case tests = "Controller_Tests"
         case basic = "Controller_Simple"
         case resource = "Controller_Resource"
         case action = "Controller_Action"
@@ -61,9 +60,8 @@ internal final class ControllerGenerator: AbstractGenerator {
         let className = ControllerGenerator.controllerNameFromCommandInput(resourceName)
         let filePath = pathForController(named: className)
         let templatePath = pathForTemplate(named: templateName)
-        let testsTemplatePath = pathForTemplate(named: Templates.tests.rawValue)
-        let testsFilePath = "\(Directories.controllersTests.rawValue)\(className)Tests.swift"
-        try generateClass(named: "\(className)Tests", forResource: resourceName, template: testsTemplatePath, destination: testsFilePath)
+        let testsGenerator = TestsGenerator(console: console)
+        try testsGenerator.generate(arguments: [className, Directories.controllersTests.rawValue])
         return try generateClass(named: className, forResource: resourceName, template: templatePath, destination: filePath)
     }
     

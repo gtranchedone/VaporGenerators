@@ -20,7 +20,6 @@ internal final class ModelGenerator: AbstractGenerator {
     
     private enum Templates: String {
         case model = "Model"
-        case tests = "ModelTests"
     }
     
     override internal var signature: [Argument] {
@@ -92,12 +91,8 @@ internal final class ModelGenerator: AbstractGenerator {
     }
     
     func generateModelTests(className: String) throws {
-        let templatePath = pathForTemplate(named: Templates.tests.rawValue)
-        let destination = "\(Directories.modelTests.rawValue)\(className.capitalized)Tests.swift"
-        try copyTemplate(atPath: templatePath, toPath: destination) {
-            return $0.replacingOccurrences(of: ReplacementKeys.className.rawValue,
-                                           with: className.capitalized)
-        }
+        let testsGenerator = TestsGenerator(console: console)
+        try testsGenerator.generate(arguments: [className, Directories.modelTests.rawValue])
     }
     
 }

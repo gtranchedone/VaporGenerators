@@ -1,8 +1,6 @@
 import Foundation
 import Console
 
-// TODO: make sure ivars are normalized when used as keys. .g. firstName => "first_name"
-
 internal final class ModelGenerator: AbstractGenerator {
     
     private enum ReplacementKeys: String {
@@ -69,10 +67,11 @@ internal final class ModelGenerator: AbstractGenerator {
                 let components = ivar.components(separatedBy: ":")
                 let ivarName = components.first!
                 let ivarType = components.last!
+                let normalizedIvar = ivarName.snakeCased
                 ivarDefinitions += "\(spacing(4))var \(ivarName): \(ivarType.capitalized)\n"
-                ivarInitializers += "\(spacing(8))\(ivarName) = try node.extract(\"\(ivarName)\")\n"
-                ivarDictionaryPairs += "\(spacing(12))\"\(ivarName)\": \(ivarName),\n"
-                tableRowsDefinition += "\(spacing(12))$0.\(ivarType.lowercased())(\"\(ivarName)\")\n"
+                ivarInitializers += "\(spacing(8))\(ivarName) = try node.extract(\"\(normalizedIvar)\")\n"
+                ivarDictionaryPairs += "\(spacing(12))\"\(normalizedIvar)\": \(ivarName),\n"
+                tableRowsDefinition += "\(spacing(12))$0.\(ivarType.lowercased())(\"\(normalizedIvar)\")\n"
             }
             ivarDefinitions = ivarDefinitions.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             ivarInitializers = ivarInitializers.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
@@ -99,6 +98,32 @@ internal final class ModelGenerator: AbstractGenerator {
             return $0.replacingOccurrences(of: ReplacementKeys.className.rawValue,
                                            with: className.capitalized)
         }
+    }
+    
+}
+
+extension String {
+    
+    public var decapitalized: String {
+        guard !isEmpty else { return self }
+        if self[startIndex] == self.uppercased()[startIndex] {
+            return replacingCharacters(in: startIndex..<index(after: startIndex), with: String(self[startIndex]).lowercased())
+        }
+        return self
+    }
+    
+    public var snakeCased: String {
+        func snakeCaseCapitals(_ input: String) -> String {
+            var result = input
+            while let range = result.rangeOfCharacter(from: .uppercaseLetters) {
+                result = replacingCharacters(in: range, with: "_\(substring(with: range).lowercased())")
+            }
+            return result
+        }
+        return components(separatedBy: CharacterSet.alphanumerics.inverted).filter({ !$0.isEmpty })
+            .map({ snakeCaseCapitals($0.decapitalized) })
+            .joined(separator: "_")
+            .lowercased()
     }
     
 }

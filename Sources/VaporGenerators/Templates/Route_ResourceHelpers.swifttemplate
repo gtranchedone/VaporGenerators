@@ -8,8 +8,8 @@ extension Droplet {
         return pathFor_ROUTECAPITALIZED_() + "/\(id)"
     }
     
-    func pathForCreating_ROUTECAPITALIZED_() throws -> String {
-        return try pathFor_ROUTE_() + "/new"
+    func pathForCreating_ROUTECAPITALIZED_() -> String {
+        return pathFor_ROUTECAPITALIZED_() + "/new"
     }
     
     func path(forEditing model: _RESOURCE_) throws -> String {

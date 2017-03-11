@@ -15,14 +15,14 @@ internal final class ViewGenerator: AbstractGenerator {
     }
     
     override func performGeneration(arguments: [String]) throws {
-        var viewsToGenerate = arguments.values
+        var viewsToGenerate = arguments.values.filter { !$0.contains(":") }
         guard viewsToGenerate.count > 0 else {
             throw ConsoleError.argumentNotFound
         }
         
         var directory = Directories.views.rawValue
         if arguments.flag(Arguments.useFirstArgumentAsDirectory.rawValue) {
-            directory += viewsToGenerate.removeFirst().lowercased()
+            directory += viewsToGenerate.removeFirst().lowercased().pluralized + "/"
             console.info("Generating \(directory)")
             try File.createDirectory(atPath: directory)
             if viewsToGenerate.isEmpty {
@@ -37,10 +37,9 @@ internal final class ViewGenerator: AbstractGenerator {
     }
     
     private func generateView(atPath path: String) throws {
-        console.info("Generating \(path)")
         let templatePath = pathForTemplate(named: Templates.view.rawValue,
                                            extension: "leaftemplate")
-        try File(path: templatePath).saveCopy(atPath: path)
+        try copyTemplate(atPath: templatePath, toPath: path)
     }
     
 }

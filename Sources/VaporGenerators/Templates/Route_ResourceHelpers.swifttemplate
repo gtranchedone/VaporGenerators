@@ -1,18 +1,18 @@
 extension Droplet {
-    func pathFor_RESOURCE_() -> String {
+    func pathFor_ROUTECAPITALIZED_() -> String {
         return "_ROUTE_"
     }
     
-    func pathFor_RESOURCE_(_ model: _RESOURCE_) throws -> String {
+    func path(for model: _RESOURCE_) throws -> String {
         guard let id = model.id?.int else { throw Abort.badRequest }
-        return "_ROUTE_/\(id)"
+        return pathFor_ROUTECAPITALIZED_() + "/\(id)"
     }
     
-    func pathForCreating_RESOURCE_(_ model: _RESOURCE_) throws -> String {
-        return try pathFor_RESOURCE_(model) + "/new"
+    func pathForCreating_ROUTECAPITALIZED_() throws -> String {
+        return try pathFor_ROUTE_() + "/new"
     }
     
-    func pathForEditing_RESOURCE_(_ model: _RESOURCE_) throws -> String {
-        return try pathFor_RESOURCE_(model) + "/edit"
+    func path(forEditing model: _RESOURCE_) throws -> String {
+        return try path(for: model) + "/edit"
     }
 }

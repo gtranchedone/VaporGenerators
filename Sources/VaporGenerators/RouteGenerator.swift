@@ -13,6 +13,7 @@ internal final class RouteGenerator: AbstractGenerator {
         case method = "_METHOD_"
         case handler = "_HANDLER_"
         case resource = "_RESOURCE_"
+        case routeCapitalized = "_ROUTECAPITALIZED_"
     }
     
     private enum ReplacementText: String {
@@ -95,8 +96,12 @@ internal final class RouteGenerator: AbstractGenerator {
     private func generateHelpers(forResource resourceName: String) throws {
         let helpersFile = Templates.resourceHelpers.file(generator: self)
         var helpersContent = helpersFile.contents
-        helpersContent = helpersContent.replacingOccurrences(of: ReplacementKeys.resource.rawValue, with: resourceName.capitalized)
-        helpersContent = helpersContent.replacingOccurrences(of: ReplacementKeys.route.rawValue, with: resourceName.pluralized)
+        helpersContent = helpersContent.replacingOccurrences(of: ReplacementKeys.routeCapitalized.rawValue,
+                                                             with: resourceName.pluralized.capitalized)
+        helpersContent = helpersContent.replacingOccurrences(of: ReplacementKeys.resource.rawValue,
+                                                             with: resourceName.capitalized)
+        helpersContent = helpersContent.replacingOccurrences(of: ReplacementKeys.route.rawValue,
+                                                             with: resourceName.pluralized)
         var routesFile = try searchRoutesFile()
         routesFile.contents += "\n\(helpersContent)"
         try routesFile.save()

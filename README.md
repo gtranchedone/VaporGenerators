@@ -34,7 +34,7 @@ Package(
 // In your project's main.swift file
 let drop = Droplet()
 ...
-drop.commands.append(Generate(console: droplet.console))
+drop.commands.append(Generate(console: drop.console))
 drop.run()
 ```
 
@@ -54,6 +54,7 @@ After you've installed the `Generate` command, you can use the generator from th
 # In a Terminal window
 cd /path/to/your/project
 vapor run generate [generator-type] [arguments]
+vapor build    # or
 vapor xcode -y # if you use Xcode or AppCode
 ```
 

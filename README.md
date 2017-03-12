@@ -364,3 +364,4 @@ vapor run generate my-custom-generator [arguments]
 
 - [ ] Test on Linux
 - [ ] Add Unit Tests
+- [ ] Improve Pluralization code (and extract it in a new Package)
